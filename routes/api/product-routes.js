@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const res = require('express/lib/response');
 const { Product, Category, Tag, ProductTag } = require('../../models');
 
 // The `/api/products` endpoint
@@ -36,7 +37,20 @@ router.get('/:id', async (req, res) => {
 });
 
 // create new product
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
+  // try {
+  //   const newProduct = await Product.create(req.body, {
+  //       product_name: "Basketball",
+  //       price: 200.00,
+  //       stock: 3,
+  //       tagIds: [1, 2, 3, 4]
+  //     }
+  //   })
+    
+  // } catch (err) {
+  //   res.status(500).json.(err);
+    
+  // }
   /* req.body should look like this...
     {
       product_name: "Basketball",
