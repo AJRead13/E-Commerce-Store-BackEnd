@@ -19,11 +19,16 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const oneProduct = await Product.findByPk(req.params.id, {
-      // include: [
-      //   // {
-      //   //   model: Category,
-      //   //   attributes: ["id", "category"]
-      //   // }],
+      include: [
+        {
+          model: Category,
+          attributes: ["id", 'category_name']
+        },
+        // {
+        //   model: Tag,
+        //   attributes: ["id", "tag_name"]
+        // }
+      ],    
     });
     res.status(200).json(oneProduct);
   }catch (err) {
@@ -31,50 +36,66 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// create new product
 router.post('/', async (req, res) => {
-  // try {
-  //   const newProduct = await Product.create(req.body, {
-  //       product_name: "Basketball",
-  //       price: 200.00,
-  //       stock: 3,
-  //       tagIds: [1, 2, 3, 4]
-  //     }
-  //   })
-    
-  // } catch (err) {
-  //   res.status(500).json.(err);
-    
-  // }
-  /* req.body should look like this...
-    {
-      product_name: "Basketball",
-      price: 200.00,
-      stock: 3,
-      tagIds: [1, 2, 3, 4]
-    }
-  */
-  Product.create(req.body)
-    .then((product) => {
-      // if there's product tags, we need to create pairings to bulk create in the ProductTag model
-      if (req.body.tagIds.length) {
-        const productTagIdArr = req.body.tagIds.map((tag_id) => {
-          return {
-            product_id: product.id,
-            tag_id,
-          };
-        });
-        return ProductTag.bulkCreate(productTagIdArr);
-      }
-      // if no product tags, just respond
-      res.status(200).json(product);
-    })
-    .then((productTagIds) => res.status(200).json(productTagIds))
-    .catch((err) => {
-      console.log(err);
-      res.status(400).json(err);
+  try {
+    const newProduct = await Product.create(req.body, {
+      include: [
+        {
+          model: Product,
+          attributes: ["id", "product_name", "price", "stock", "category_id"]
+        }],
     });
+    res.status(201).json(newProduct);
+  } catch (error) {
+    res.status(500).json(err)
+  }
 });
+
+
+// create new product
+// router.post('/', async (req, res) => {
+//   // try {
+//   //   const newProduct = await Product.create(req.body, {
+//   //       product_name: "Basketball",
+//   //       price: 200.00,
+//   //       stock: 3,
+//   //       tagIds: [1, 2, 3, 4]
+//   //     }
+//   //   })
+    
+//   // } catch (err) {
+//   //   res.status(500).json.(err);
+    
+//   // }
+//   /* req.body should look like this...
+//     {
+//       product_name: "Basketball",
+//       price: 200.00,
+//       stock: 3,
+//       tagIds: [1, 2, 3, 4]
+//     }
+//   */
+//   Product.create(req.body)
+//     .then((product) => {
+//       // if there's product tags, we need to create pairings to bulk create in the ProductTag model
+//       if (req.body.tagIds.length) {
+//         const productTagIdArr = req.body.tagIds.map((tag_id) => {
+//           return {
+//             product_id: product.id,
+//             tag_id,
+//           };
+//         });
+//         return ProductTag.bulkCreate(productTagIdArr);
+//       }
+//       // if no product tags, just respond
+//       res.status(200).json(product);
+//     })
+//     .then((productTagIds) => res.status(200).json(productTagIds))
+//     .catch((err) => {
+//       console.log(err);
+//       res.status(400).json(err);
+//     });
+// });
 
 // update product
 router.put('/:id', (req, res) => {
@@ -118,8 +139,26 @@ router.put('/:id', (req, res) => {
     });
 });
 
-router.delete('/:id', (req, res) => {
-  // delete one product by its `id` value
+// router.delete('/:id', (req, res) => {
+//   // delete one product by its `id` value
+// });
+
+router.delete('/:id', async (req, res) => {
+  try {
+    const deleteProduct = await Product.destroy({
+      where: {
+        id: req.params.id,
+      },
+    });
+    if (!deleteProduct) {
+      res.status(404).json({ message: "No Product found with that id..." });
+      return;
+    }
+    res.status(200).json(deleteCat);
+  } catch (err) {
+    res.status(500).json(err)
+  }
+  
 });
 
 module.exports = router;

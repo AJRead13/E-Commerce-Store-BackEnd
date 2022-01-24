@@ -24,12 +24,6 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const oneTag = await Tag.findByPk(req.params.id, {
-      // include: [
-      // {
-      //   model: Product,
-      //   // attributes: ["id", 'product_name', "price", "stock", 'category_id']
-      // }
-      // ]
     });
     res.status(200).json(oneTag);
   } catch (error) {
