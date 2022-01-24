@@ -22,6 +22,20 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
+  try {
+    const oneTag = await Tag.findByPk(req.params.id, {
+      include: [
+      {
+        model: Product,
+        attributes: ["id", 'product_name', "price", "stock", 'category_id']
+      }
+      ]
+    });
+    res.status(200).json(oneTag);
+  } catch (error) {
+    res.status(500).json(err)
+    
+  }
   // find a single tag by its `id`r
   // be sure to include its associated Product data
 });
@@ -30,7 +44,19 @@ router.post('/', (req, res) => {
   // create a new tag
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
+  try {
+    const newTag = await Tag.create(req.body, {
+      include: [
+        {
+          model: Tag,
+          attributes: ["id", 'product_name', "price", "stock", 'category_id']
+        }
+      ]
+    })
+  } catch (error) {
+    
+  }
   // update a tag's name by its `id` value
 });
 
